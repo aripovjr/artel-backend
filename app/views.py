@@ -25,6 +25,13 @@ class ProductCreateAPIView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        c = serializer.validated_data["category"]["name"]
+        category = get_object_or_404(Category, name=c)
+        serializer.validated_data["category"] = category
+
 
 class ProductRetrieveAPIView(generics.RetrieveAPIView):
     queryset = Product.objects.all()

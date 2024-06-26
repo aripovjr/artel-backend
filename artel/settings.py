@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'app',
     "accounts",
     "rest_framework",
+    "drf_yasg",
 ]
 
 REST_FRAMEWORK = {

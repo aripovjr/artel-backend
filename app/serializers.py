@@ -9,9 +9,9 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)
-    category_id = serializers.PrimaryKeyRelatedField(
-        source='category', queryset=Category.objects.all(), write_only=True)
+    category = serializers.CharField(source='category.name')
+    # category_id = serializers.PrimaryKeyRelatedField(
+    #     source='category', queryset=Category.objects.all(), write_only=True)
 
     class Meta:
         model = Product
