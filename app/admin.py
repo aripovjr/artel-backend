@@ -7,10 +7,11 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ("name",)
 
 
-@admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
-    list_display = ("name", "model", "category", "price", "discount", "amount")
-    list_filter = ("category",)
-    search_fields = ("name", "model", "description")
-
-    fields = ('name', 'model', 'category', 'price', 'discount', 'amount', 'description')
+admin.site.register(Product)
+# @admin.register(Product)
+# class ProductAdmin(admin.ModelAdmin):
+#     list_display = ("name", "model", "category", "price", "discount", "amount")
+#     list_filter = ("category",)
+#     search_fields = ("name", "model", "description")
+#
+#     fields = ('name', 'model', 'category', 'price', 'discount', 'amount', 'description')

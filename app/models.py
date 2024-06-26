@@ -16,7 +16,7 @@ class Product(models.Model):
     discount = models.FloatField(default=0.0)
     amount = models.IntegerField()
     description = models.TextField(default="")
-    # photo = models.
+    photo = models.ImageField(upload_to='products/', default="default/IMG_0024 2.JPG")
 
     def __str__(self):
         return self.name
