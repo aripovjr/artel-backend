@@ -1,4 +1,5 @@
 from django.db import models
+from accounts.models import CustomUser
 
 
 class Category(models.Model):
@@ -17,6 +18,26 @@ class Product(models.Model):
     amount = models.IntegerField()
     description = models.TextField(default="")
     photo = models.ImageField(upload_to='products/', default="default/IMG_0024 2.JPG")
+
+    def __str__(self):
+        return self.name
+
+
+class Order(models.Model):
+    admin = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    count = models.IntegerField()
+    description = models.TextField(default="")
+    status = models.CharField(max_length=255, default="korilmagan")
+
+    def __str__(self):
+        return str(self.admin)
+
+
+class Promo(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(default="")
+    photo = models.ImageField(upload_to="promos/", default='default/IMG_0024 2.JPG')
 
     def __str__(self):
         return self.name

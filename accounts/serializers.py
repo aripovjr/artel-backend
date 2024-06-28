@@ -7,6 +7,14 @@ class AccountSerializer(serializers.ModelSerializer):
         model = CustomUser
         exclude = ['groups', 'user_permissions', "is_admin", "is_active", "is_staff", "is_superuser", "last_login", "password"]
         extra_kwargs = {
-            "password": {"read_only": True},
-            "phone_number": {"read_only": True},
+            "password": {"read_only": True}
+        }
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', "fullname", 'telegram_id', 'phone_number', "info"]
+        extra_kwargs = {
+            "telegram_id": {"read_only": True}
         }
