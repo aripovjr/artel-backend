@@ -16,7 +16,7 @@ class Product(models.Model):
     price = models.FloatField(default=0.0)
     discount = models.FloatField(default=0.0)
     amount = models.IntegerField()
-    description = models.TextField(default="")
+    description = models.TextField(null=True, blank=True)
     photo = models.ImageField(upload_to='products/', default="default/IMG_0024 2.JPG")
 
     def __str__(self):
@@ -27,7 +27,7 @@ class Order(models.Model):
     admin = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     count = models.IntegerField()
-    description = models.TextField(default="")
+    description = models.TextField(null=True, blank=True)
     status = models.CharField(max_length=255, default="korilmagan")
 
     def __str__(self):
@@ -36,7 +36,7 @@ class Order(models.Model):
 
 class Promo(models.Model):
     name = models.CharField(max_length=255)
-    description = models.TextField(default="")
+    description = models.TextField(null=True, blank=True)
     photo = models.ImageField(upload_to="promos/", default='default/IMG_0024 2.JPG')
 
     def __str__(self):

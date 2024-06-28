@@ -1,12 +1,11 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
-from rest_framework.exceptions import NotFound, ValidationError
+from django.shortcuts import get_object_or_404
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
 from rest_framework import generics, status
 from rest_framework.status import HTTP_201_CREATED
 
-from . import serializers
 from .models import Product, Category, Order, Promo
 from .serializers import ProductSerializer, CategorySerializer, OrderSerializer, OrderGetSerializer, PromoSerializer
 from rest_framework.pagination import PageNumberPagination
@@ -23,6 +22,22 @@ class ProductListAPIView(generics.ListAPIView):
     serializer_class = ProductSerializer
     pagination_class = ProductPagination
 
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('q', openapi.IN_QUERY, description="Search by Product name",
+                              type=openapi.TYPE_STRING)
+        ]
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        product_name = self.request.query_params.get('q', None)
+        if product_name:
+            return Product.objects.filter(name__icontains=product_name)
+        else:
+            return Product.objects.all()
+
 
 class ProductCreateAPIView(generics.CreateAPIView):
     queryset = Product.objects.all()
@@ -31,8 +46,8 @@ class ProductCreateAPIView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        c = serializer.validated_data["category"]["name"]
-        category = get_object_or_404(Category, name=c)
+        category_name = serializer.validated_data["category"]["name"]
+        category = get_object_or_404(Category, name=category_name)
         serializer.validated_data["category"] = category
         product = Product.objects.create(**serializer.validated_data)
         return Response(self.get_serializer(product).data, status=HTTP_201_CREATED)
@@ -61,6 +76,15 @@ class GetAllCategories(generics.ListAPIView):
 class GetProductByCategory(generics.ListAPIView):
     serializer_class = ProductSerializer
     pagination_class = ProductPagination
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('category', openapi.IN_QUERY, description="Search by Category name",
+                              type=openapi.TYPE_STRING)
+        ]
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         category_name = self.request.query_params.get('category', None)
@@ -120,9 +144,25 @@ class PromoCreateAPIView(generics.CreateAPIView):
 class PromoGetAPIView(generics.ListAPIView):
     queryset = Promo.objects.all()
     serializer_class = PromoSerializer
+    pagination_class = ProductPagination
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('q', openapi.IN_QUERY, description="Search by Promo name",
+                              type=openapi.TYPE_STRING)
+        ]
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        promo_name = self.request.query_params.get('q', None)
+        if promo_name:
+            return Promo.objects.filter(name__icontains=promo_name)
+        else:
+            return Product.objects.all()
 
 
 class PromoDeleteAPIView(generics.DestroyAPIView):
     queryset = Promo.objects.all()
     serializer_class = PromoSerializer
-
