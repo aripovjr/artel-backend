@@ -1,6 +1,7 @@
 from django.core.validators import RegexValidator
 from django.db import models
-from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin, Group
+from django.contrib.auth.models import Permission
 
 
 class AccountManager(BaseUserManager):
@@ -38,10 +39,8 @@ PHONE_REGEX = RegexValidator(
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     admin_types = (
-        ("0", "bloklangan"),
-        ("1", "oddiy"),
-        ("2", "admin qoshish"),
-        ("3", "mahsulot qoshish")
+        ("0", "seller"),
+        ("1", "dealer"),
     )
     fullname = models.CharField(max_length=250, blank=True, null=True)
     phone_number = models.CharField(validators=[PHONE_REGEX], max_length=21, unique=True)

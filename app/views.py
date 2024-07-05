@@ -6,8 +6,9 @@ from rest_framework.response import Response
 from rest_framework import generics, status
 from rest_framework.status import HTTP_201_CREATED
 
-from .models import Product, Category, Order, Promo
-from .serializers import ProductSerializer, CategorySerializer, OrderSerializer, OrderGetSerializer, PromoSerializer
+from .models import Product, Category, Order, Promo, Color
+from .serializers import ProductSerializer, CategorySerializer, OrderSerializer, OrderGetSerializer, PromoSerializer, \
+    ColorSerializer
 from rest_framework.pagination import PageNumberPagination
 
 
@@ -160,9 +161,29 @@ class PromoGetAPIView(generics.ListAPIView):
         if promo_name:
             return Promo.objects.filter(name__icontains=promo_name)
         else:
-            return Product.objects.all()
+            return Promo.objects.all()
 
 
 class PromoDeleteAPIView(generics.DestroyAPIView):
     queryset = Promo.objects.all()
     serializer_class = PromoSerializer
+
+
+class PromoUpdateAPIView(generics.UpdateAPIView):
+    queryset = Promo.objects.all()
+    serializer_class = PromoSerializer
+
+
+class PromoRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = Promo.objects.all()
+    serializer_class = PromoSerializer
+
+
+class ColorGetAPIView(generics.ListAPIView):
+    queryset = Color.objects.all()
+    serializer_class = ColorSerializer
+
+
+class ColorRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = Color.objects.all()
+    serializer_class = ColorSerializer

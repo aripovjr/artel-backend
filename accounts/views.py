@@ -3,6 +3,13 @@ from rest_framework import generics
 from rest_framework.response import Response
 from .models import CustomUser
 from .serializers import AccountSerializer, UserSerializer
+from rest_framework.pagination import PageNumberPagination
+
+
+class UserPagination(PageNumberPagination):
+    page_size = 5
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 
 class AccountCheckerByID(generics.GenericAPIView):
@@ -35,6 +42,7 @@ class UpdateUser(generics.UpdateAPIView):
 class GetUser(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = AccountSerializer
+    pagination_class = UserPagination
 
 
 class CreateUser(generics.CreateAPIView):

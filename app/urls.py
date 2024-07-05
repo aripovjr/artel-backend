@@ -19,6 +19,10 @@ urlpatterns = [
     path('api/create_promo', views.PromoCreateAPIView.as_view(), name="create-promo"),
     path("api/get_all_promos", views.PromoGetAPIView.as_view(), name="get-all-orders"),
     path("api/delete_promo/<int:pk>", views.PromoDeleteAPIView.as_view(), name="delete-promo"),
+    path("api/get_promo_id/<int:pk>",views.PromoRetrieveAPIView.as_view(), name="get-promo-by-id"),
+    path('api/update_promo/<int:pk>', views.PromoUpdateAPIView.as_view(), name="update=promo-by-id"),
+    path('api/get_colors', views.ColorGetAPIView.as_view(), name="color-get"),
+    path('api/get_color/<int:pk>', views.ColorRetrieveAPIView.as_view(), name="color-by-id"),
 
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
