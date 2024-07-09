@@ -1,4 +1,4 @@
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin, Group
 from django.contrib.auth.models import Permission
@@ -12,16 +12,16 @@ class AccountManager(BaseUserManager):
 
         user = self.model(
             phone_number=phone_number,
-            password=password,
+            password=phone_number,
         )
-        user.set_password(password)
+        user.set_password(phone_number)
         user.save(using=self._db)
         return user
 
     def create_superuser(self, phone_number, password, fullname=None):
         user = self.create_user(
             phone_number=phone_number,
-            password=password
+            password=phone_number
         )
         user.is_admin = True
         user.is_active = True
@@ -41,16 +41,19 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     admin_types = (
         ("0", "seller"),
         ("1", "dealer"),
+        ("2", "admin")
     )
     fullname = models.CharField(max_length=250, blank=True, null=True)
     phone_number = models.CharField(validators=[PHONE_REGEX], max_length=21, unique=True)
     telegram_id = models.BigIntegerField(max_length=255, blank=True, null=True)
     info = models.TextField(default="")
-    admin_type = models.CharField(choices=admin_types, max_length=255, default="1")
+    admin_type = models.CharField(choices=admin_types, max_length=255, default="0")
+    state = models.SmallIntegerField(validators=[MinValueValidator(0), MaxValueValidator(1)], default=1)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(auto_now=True)
 

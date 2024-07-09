@@ -23,7 +23,10 @@ urlpatterns = [
     path('api/update_promo/<int:pk>', views.PromoUpdateAPIView.as_view(), name="update=promo-by-id"),
     path('api/get_colors', views.ColorGetAPIView.as_view(), name="color-get"),
     path('api/get_color/<int:pk>', views.ColorRetrieveAPIView.as_view(), name="color-by-id"),
+    path("api/update_color/<int:pk>", views.ColorUpdateAPIView.as_view(), name="color-update"),
+    path("api/delete_color/<int:pk>", views.ColorDeleteAPIView.as_view(), name="color-delete"),
 
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
+

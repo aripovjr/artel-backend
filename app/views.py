@@ -26,7 +26,8 @@ class ProductListAPIView(generics.ListAPIView):
     @swagger_auto_schema(
         manual_parameters=[
             openapi.Parameter('q', openapi.IN_QUERY, description="Search by Product name",
-                              type=openapi.TYPE_STRING)
+                              type=openapi.TYPE_STRING),
+            openapi.Parameter("category", openapi.IN_QUERY, description="Search by Product category", type=openapi.TYPE_STRING)
         ]
     )
     def get(self, request, *args, **kwargs):
@@ -34,24 +35,27 @@ class ProductListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         product_name = self.request.query_params.get('q', None)
+        product_category = self.request.query_params.get("category", None)
         if product_name:
             return Product.objects.filter(name__icontains=product_name)
-        else:
-            return Product.objects.all()
+
+        if product_category:
+            return Product.objects.filter(category__name__icontains=product_category)
+
+        return Product.objects.all()
+
+
 
 
 class ProductCreateAPIView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        category_name = serializer.validated_data["category"]["name"]
-        category = get_object_or_404(Category, name=category_name)
-        serializer.validated_data["category"] = category
-        product = Product.objects.create(**serializer.validated_data)
-        return Response(self.get_serializer(product).data, status=HTTP_201_CREATED)
+    # def create(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     product = serializer.save()
+    #     return Response(self.get_serializer(product).data, status=HTTP_201_CREATED)
 
 
 class ProductRetrieveAPIView(generics.RetrieveAPIView):
@@ -62,6 +66,49 @@ class ProductRetrieveAPIView(generics.RetrieveAPIView):
 class ProductUpdateAPIView(generics.UpdateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    lookup_field = "id"
+
+    def patch(self, request, *args, **kwargs):
+        product = get_object_or_404(Product, id=kwargs.get("pk"))
+        color_data = request.data.pop("colors", [])
+        promo_data = request.data.pop("promo", [])
+
+        if color_data:
+            for data in color_data:
+                id = data.get("id", False)
+                if not id:
+                    c = ColorSerializer(data=data)
+                    c.is_valid(raise_exception=True)
+                    c2 = c.save()
+                    product.colors.add(c2)
+                    product.save()
+                else:
+                    color_instance = get_object_or_404(Color, id=id)
+                    color_serializer = ColorSerializer(instance=color_instance, data=data, partial=True)
+                    color_serializer.is_valid(raise_exception=True)
+                    color_serializer.save()
+
+        # serializer = self.get_serializer(instance=product, data=request.data, partial=True)
+        # serializer.is_valid(raise_exception=True)
+        # serializer.save()
+
+        if promo_data:
+            for data in promo_data:
+                id = data.get('id', False)
+                data.pop('product')
+                if not id:
+                    Promo.objects.create(product=product, **data)
+                else:
+                    promo_instance = get_object_or_404(Promo, id=id, product=product)
+                    promo_serializer = PromoSerializer(instance=promo_instance, data=data, partial=True)
+                    promo_serializer.is_valid(raise_exception=True)
+                    promo_serializer.save()
+
+        serializer = self.get_serializer(instance=product, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ProductDestroyAPIView(generics.DestroyAPIView):
@@ -185,5 +232,15 @@ class ColorGetAPIView(generics.ListAPIView):
 
 
 class ColorRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = Color.objects.all()
+    serializer_class = ColorSerializer
+
+
+class ColorUpdateAPIView(generics.UpdateAPIView):
+    queryset = Color.objects.all()
+    serializer_class = ColorSerializer
+
+
+class ColorDeleteAPIView(generics.DestroyAPIView):
     queryset = Color.objects.all()
     serializer_class = ColorSerializer

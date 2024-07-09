@@ -8,6 +8,22 @@ from .models import Product, Category, Order, Promo, Color
 from accounts.serializers import UserSerializer
 
 
+class PromoSerializer(serializers.ModelSerializer):
+    # discount_status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Promo
+        fields = "__all__"
+
+
+class ColorSerializer(serializers.ModelSerializer):
+    photo = Base64ImageField(allow_null=True, required=False)
+
+    class Meta:
+        model = Color
+        fields = "__all__"
+
+
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -16,13 +32,34 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     category = serializers.CharField(source='category.name')
-    photo = Base64ImageField(allow_null=True, required=False)
+    colors = ColorSerializer(many=True, required=False)
+    promo = PromoSerializer(many=True, required=False)
 
     class Meta:
         model = Product
         fields = '__all__'
 
+    def create(self, validated_data):
+        category_name = validated_data.pop('category')['name']
+        category = get_object_or_404(Category, name=category_name)
+
+        colors_data = validated_data.pop('colors', [])
+        promos_data = validated_data.pop('promo', [])
+
+        product = Product.objects.create(category=category, **validated_data)
+        for color_data in colors_data:
+            c = Color.objects.create(**color_data)
+            product.colors.add(c)
+            product.save()
+
+        for promo_data in promos_data:
+            promo_data.pop("product")
+            Promo.objects.create(product=product, **promo_data)
+
+        return product
+
     def update(self, instance, validated_data):
+        # Update the category
         if 'category' in validated_data:
             cat = validated_data.pop('category')['name']
             category = get_object_or_404(Category, name=cat)
@@ -61,15 +98,3 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class PromoSerializer(serializers.ModelSerializer):
-    # discount_status = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Promo
-        fields = "__all__"
-
-
-class ColorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Color
-        fields = "__all__"

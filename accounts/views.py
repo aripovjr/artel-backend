@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.response import Response
 from .models import CustomUser
 from .serializers import AccountSerializer, UserSerializer
@@ -17,8 +17,13 @@ class AccountCheckerByID(generics.GenericAPIView):
     serializer_class = AccountSerializer
 
     def get(self, request, *args, **kwargs):
-        user_id = request.data.get("telegram_id")
-        user = get_object_or_404(CustomUser, telegram_id=user_id)
+        # Check for telegram_id in both the request body and query parameters
+        telegram_id = request.data.get("telegram_id") or request.query_params.get("telegram_id")
+
+        if telegram_id is None:
+            return Response({'detail': 'telegram_id is required'}, status=400)
+
+        user = get_object_or_404(CustomUser, telegram_id=telegram_id)
         serializer = self.get_serializer(user)
         return Response(serializer.data)
 
@@ -59,3 +64,15 @@ class GetUserById(generics.RetrieveAPIView):
         user = get_object_or_404(self.get_queryset(), pk=user_id)
         serializer = self.get_serializer(user)
         return Response(serializer.data)
+
+
+class DeleteUserById(generics.DestroyAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = AccountSerializer
+
+    def delete(self, request, *args, **kwargs):
+        user_id = kwargs.get('pk')
+        user_instance = get_object_or_404(CustomUser, id=user_id)
+        user_instance.state = 0
+        user_instance.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)

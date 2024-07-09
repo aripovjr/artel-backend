@@ -29,12 +29,11 @@ schema_view = get_schema_view(
         description="API documentation of Artel Catalogue for Frontend Developers",
     ),
     public=True,
-    permission_classes=(permissions.AllowAny,),
+    permission_classes=[permissions.AllowAny,],
 )
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
     path('accounts/', include('accounts.urls')),
     path('', include('app.urls')),
     path('docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

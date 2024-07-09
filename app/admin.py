@@ -1,8 +1,7 @@
 from django.contrib import admin
 from .models import Category, Product, Order, Promo, Color
 from django import forms
-
-
+from django.contrib import admin
 
 
 @admin.register(Category)
@@ -17,7 +16,7 @@ class PromoTabular(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'model', 'price']
+    list_display = ['name']
     inlines = [PromoTabular]
 
 
@@ -33,6 +32,7 @@ class ColorAdminForm(forms.ModelForm):
         widgets = {
             'hex_code': forms.TextInput(attrs={'type': 'color'})
         }
+
 
 @admin.register(Color)
 class ColorAdmin(admin.ModelAdmin):

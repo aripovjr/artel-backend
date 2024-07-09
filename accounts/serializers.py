@@ -15,7 +15,7 @@ class AccountSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', "fullname", 'telegram_id', 'phone_number', "info"]
+        fields = ['id', "fullname", 'telegram_id', 'phone_number', "info", "admin_type"]
         extra_kwargs = {
             "telegram_id": {"read_only": True}
         }
